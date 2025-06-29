@@ -10,11 +10,12 @@
     --back-color: rgb(2, 2, 2);
     --text-color: rgb(255, 255, 255);
     --primary-color: rgb(15, 82, 186);
-    --primary-glow-color: radial-gradient(circle at 50% 50%, rgba(15,82,186,0.18) 0%, rgba(15,82,186,0.10) 90%, rgba(0,0,0,0.0) 100%);;
+    --primary-glow-color: radial-gradient(circle at 50% 50%, rgba(15,82,186,0.18) 0%, rgba(15,82,186,0.10) 90%, rgba(0,0,0,0.0) 100%);
     --accent: #1f1f1f;
     --border-color: #222;
     --divider-color: #222;
-    --corner-radius: 0;
+    --outer-radius: 1.5rem;
+    --inner-radius: 0.7rem;
     --gap: 1.5rem;
     --font-heading: 'Bricolage Grotesque', sans-serif;
     --font-mono: 'Fira Mono', monospace;
@@ -79,6 +80,7 @@ body::before {
     position: relative;
     z-index: 2;
     background: none;
+    border-radius: var(--outer-radius) !important;
 }
 
 .title-section {
@@ -130,6 +132,7 @@ body::before {
     align-items: center;
     justify-content: center;
     min-height: 64px;
+    border-radius: var(--outer-radius) !important;
 }
 
 .search-glow {
@@ -172,9 +175,9 @@ body::before {
 .search-input {
     width: 100%;
     height: 56px;
-    background: #0f0b07;
+    background: transparent;
     border: none;
-    border-radius: 12px;
+    border-radius: var(--inner-radius) !important;
     color: #fff;
     font-size: 1.15rem;
     font-family: var(--font-mono);
@@ -207,7 +210,7 @@ body::before {
     background: var(--primary-color);
     color: #fff;
     border: none;
-    border-radius: 50%;
+    border-radius: var(--inner-radius) !important;
     width: 2.4rem;
     height: 2.4rem;
     display: flex;
@@ -246,6 +249,7 @@ body::before {
     z-index: 1000;
     display: none;
     box-shadow: none;
+    border-radius: var(--outer-radius) !important;
 }
 
 .autocomplete-item {
@@ -256,6 +260,7 @@ body::before {
     color: #fff;
     background: none;
     font-family: var(--font-mono);
+    border-radius: var(--inner-radius) !important;
 }
 
 .autocomplete-item:last-child {
@@ -332,18 +337,40 @@ body::before {
 }
 
 .result-item {
+    position: relative;
     background: #111;
     border: 1px solid var(--divider-color);
-    border-radius: var(--corner-radius);
+    border-radius: var(--inner-radius) !important;
     color: #fff;
     box-shadow: none;
     padding: 1.5rem 2rem;
     margin-bottom: 1.5rem;
     transition: all 0.3s ease;
+    border-radius: var(--inner-radius) !important;
+    overflow: hidden;
+}
+.result-item::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--inner-radius);
+    background: var(--primary-glow-color);
+    filter: blur(18px);
+    z-index: 0;
+    pointer-events: none;
+    opacity: .4;
+}
+.result-item > * {
+    position: relative;
+    z-index: 1;
 }
 
 .result-item:hover {
     border-color: var(--primary-color);
+}
+
+.result-item::before > :hover {
+    opacity: .8;
 }
 
 .result-title {
@@ -381,10 +408,10 @@ body::before {
 }
 
 .magnet-btn {
-    background: #181818;
-    color: var(--primary-color);
-    border: 1px solid var(--divider-color);
-    border-radius: var(--corner-radius);
+    background: var(--primary-color);
+    color: #fff;
+    border: 1px solid var(--primary-color);
+    border-radius: var(--inner-radius);
     font-weight: 600;
     font-size: 0.95rem;
     cursor: pointer;
@@ -398,8 +425,8 @@ body::before {
 }
 
 .magnet-btn:hover {
-    background: var(--primary-color);
-    color: #fff;
+    background: transparent;
+    color: var(--primary-color);
     border-color: var(--primary-color);
 }
 
@@ -525,7 +552,7 @@ body::before {
     display: flex;
     flex-wrap: nowrap;
     white-space: nowrap;
-    border-radius: 0.7rem;
+    border-radius: var(--inner-radius);
     background: rgba(24,24,24,0.85);
     box-sizing: border-box;
     box-shadow: 0 0 0px 1.5px #222;
@@ -541,7 +568,7 @@ body::before {
     content: "";
     position: absolute;
     inset: 0;
-    border-radius: 0.7rem;
+    border-radius: var(--outer-radius);
     background: var(--primary-glow-color);
     filter: blur(14px);
     z-index: 0;
@@ -551,7 +578,7 @@ body::before {
     content: "";
     position: absolute;
     inset: 0;
-    border-radius: 0.7rem;
+    border-radius: var(--inner-radius);
     background: rgba(255,255,255,0.04);
     backdrop-filter: blur(4px);
     z-index: 1;
@@ -575,7 +602,7 @@ body::before {
     cursor: pointer;
     align-items: center;
     justify-content: center;
-    border-radius: 0.5rem;
+    border-radius: var(--inner-radius);
     border: none;
     padding: 0.5rem 1rem;
     color: #fff;
@@ -610,7 +637,6 @@ body::before {
     background: transparent;
     pointer-events: none;
 }
-.top-bar .about-btn,
 .top-bar .github-star-link {
     pointer-events: auto;
     position: static;
@@ -618,98 +644,24 @@ body::before {
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1.3rem;
-    background: rgba(24,24,24,0.85);
+    background: var(--primary-color);
     border-radius: 999px;
-    color: var(--primary-color);
+    color: #fff;
     font-size: 1rem;
     font-weight: 600;
     text-decoration: none;
     border: 1.5px solid var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(15,82,186,0.08);
+    box-shadow: 0 0 0 2px rgba(132,176,103,0.08);
     transition: background 0.15s, color 0.15s, border 0.15s;
     margin-left: 0.5rem;
 }
-.top-bar .about-btn {
-    color: #fff;
-    border: 1.5px solid #fff2;
-    background: rgba(24,24,24,0.7);
-    margin-left: 0.5rem;
-}
-.top-bar .about-btn:hover {
-    background: var(--primary-color);
-    color: #fff;
-    border-color: var(--primary-color);
-}
 .top-bar .github-star-link:hover {
-    background: var(--primary-color);
-    color: #fff;
+    background: transparent;
+    color: var(--primary-color);
     border-color: var(--primary-color);
 }
 .top-bar .github-star-link i {
     font-size: 1.1rem;
-}
-
-.about-overlay {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(10,10,20,0.82);
-    backdrop-filter: blur(8px) brightness(0.7);
-    align-items: center;
-    justify-content: center;
-    transition: opacity 0.25s;
-}
-.about-overlay.active {
-    display: flex;
-}
-.about-modal {
-    background: rgba(24,24,24,0.98);
-    border-radius: 1.2rem;
-    box-shadow: 0 8px 48px 0 #000a;
-    max-width: 540px;
-    width: 90vw;
-    padding: 3rem 2.5rem 2.5rem 2.5rem;
-    color: #fff;
-    position: relative;
-    text-align: left;
-    font-family: var(--font-mono);
-    border: 1.5px solid var(--primary-color);
-    z-index: 2010;
-}
-.about-modal h2 {
-    font-family: var(--font-heading);
-    font-size: 2.2rem;
-    margin-bottom: 1.2rem;
-    color: var(--primary-color);
-}
-.about-modal ul {
-    margin: 1.2rem 0 0 1.2rem;
-    padding: 0;
-    color: #fff;
-    font-size: 1.1rem;
-}
-.about-modal li {
-    margin-bottom: 0.7rem;
-}
-.about-close {
-    position: absolute;
-    top: 1.2rem;
-    right: 1.2rem;
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 2.2rem;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.15s;
-    z-index: 2020;
-}
-.about-close:hover {
-    opacity: 1;
-    color: var(--primary-color);
 }
 
 .lucide {

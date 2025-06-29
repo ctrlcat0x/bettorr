@@ -13,7 +13,6 @@ class BettorApp {
         await this.loadGameData();
         this.setupEventListeners();
         this.setupAutocomplete();
-        this.setupAboutModal();
     }
 
     async loadGameData() {
@@ -294,27 +293,6 @@ class BettorApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
-    }
-
-    setupAboutModal() {
-        const aboutBtn = document.querySelector('.about-btn');
-        const aboutOverlay = document.getElementById('aboutOverlay');
-        const aboutClose = document.getElementById('aboutClose');
-        // Open overlay
-        aboutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            aboutOverlay.classList.add('active');
-        });
-        // Close overlay
-        aboutClose.addEventListener('click', () => {
-            aboutOverlay.classList.remove('active');
-        });
-        // Close when clicking outside modal
-        aboutOverlay.addEventListener('click', (e) => {
-            if (e.target === aboutOverlay) {
-                aboutOverlay.classList.remove('active');
-            }
-        });
     }
 }
 
