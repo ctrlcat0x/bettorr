@@ -270,18 +270,18 @@ class BettorApp {
             <div class="result-title">${this.escapeHtml(game.title)}</div>
             <div class="result-meta">
                 <div class="result-meta-item">
-                    <i class="fas fa-hdd"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-icon lucide-file"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></svg>
                     <span>${game.fileSize}</span>
                 </div>
                 <div class="result-meta-item">
-                    <i class="fas fa-calendar"></i>
+                    <svg class="lucide" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
                     <span>${uploadDate}</span>
                 </div>
                 <div class="source-badge">${game.source}</div>
             </div>
             <div class="result-actions">
                 <a href="${game.uris[0]}" class="magnet-btn" target="_blank">
-                    <i class="fas fa-magnet"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-magnet-icon lucide-magnet"><path d="m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15"/><path d="m5 8 4 4"/><path d="m12 15 4 4"/></svg>
                     <span>Download Magnet</span>
                 </a>
             </div>

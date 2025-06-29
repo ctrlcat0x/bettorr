@@ -711,3 +711,12 @@ body::before {
     opacity: 1;
     color: var(--primary-color);
 }
+
+.lucide {
+  vertical-align: middle;
+  stroke: currentColor;
+  fill: none;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
