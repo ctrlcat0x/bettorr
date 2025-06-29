@@ -88,69 +88,89 @@
 </head>
 <body>
     <div class="grain-overlay"></div>
-    
-    <header class="header">
-        <div class="container">
-            <div class="title-section">
-                <h1 class="main-title">bettorr</h1>
-                <a href="https://github.com/ctrlcat0x/bettor" target="_blank" class="github-link">
-                    <i class="fab fa-github"></i>
-                    <span>Give us a star</span>
-                </a>
-            </div>
+    <div class="top-bar">
+        <a href="#about" class="about-btn">About bettorr</a>
+        <a href="https://github.com/ctrlcat0x/bettorr" target="_blank" class="github-star-link" title="Star us on GitHub">
+            <i class="fab fa-github"></i>
+            <span>Give us a star</span>
+        </a>
+    </div>
+    <div class="about-overlay" id="aboutOverlay">
+        <div class="about-modal">
+            <button class="about-close" id="aboutClose" aria-label="Close About">&times;</button>
+            <h2>About Bettorr</h2>
+            <p><b>Bettorr</b> is a modern, minimalistic web interface for searching and downloading PC game torrents from multiple trusted sources. It features a beautiful dark theme, glassmorphism, and a blazing fast search experience.</p>
+            <ul>
+                <li>Aggregates torrents from DODI, FitGirl, KaosKrew, OnlineFix, and Xatab</li>
+                <li>Smart search with autocomplete and source filtering</li>
+                <li>Direct magnet links for instant downloads</li>
+                <li>Responsive, mobile-friendly design</li>
+                <li>Open source, built with love for the gaming community</li>
+            </ul>
+            <p style="margin-top:2rem; color:#aaa; font-size:1rem;">This project is for educational purposes only. Please comply with your local laws regarding torrent downloads.</p>
         </div>
-    </header>
-
+    </div>
     <main class="main-content">
         <div class="container">
+            <div class="landing-title-section">
+                <h1 class="main-title text-glow">bettorr</h1>
+                <div class="main-subtext">The modern game torrent search engine</div>
+                <hr class="main-separator" />
+            </div>
             <div class="search-section">
                 <div class="search-container">
-                    <div class="search-input-wrapper">
-                        <input 
-                            type="text" 
-                            id="searchInput" 
-                            class="search-input" 
-                            placeholder="Search for games..."
-                            autocomplete="off"
-                        >
-                        <button id="searchBtn" class="search-btn">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        <div id="autocomplete" class="autocomplete-dropdown"></div>
+                    <div class="search-input-outer">
+                        <div class="search-glow"></div>
+                        <div class="search-glass"></div>
+                        <div class="search-border"></div>
+                        <div class="search-inner">
+                            <input 
+                                type="text" 
+                                id="searchInput" 
+                                class="search-input" 
+                                placeholder="Search for games..."
+                                autocomplete="off"
+                            >
+                            <button id="searchBtn" class="search-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" fill="none"><circle stroke="currentColor" r="8" cy="11" cx="11"></circle><line stroke="currentColor" y2="16.65" y1="22" x2="16.65" x1="22"></line></svg>
+                            </button>
+                            <div id="autocomplete" class="autocomplete-dropdown"></div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="filter-section">
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-source="all">
-                            <span>All Sources</span>
-                        </button>
-                        <button class="filter-btn" data-source="dodi">
-                            <span>DODI</span>
-                        </button>
-                        <button class="filter-btn" data-source="fitgirl">
-                            <span>FitGirl</span>
-                        </button>
-                        <button class="filter-btn" data-source="kaoskrew">
-                            <span>KaosKrew</span>
-                        </button>
-                        <button class="filter-btn" data-source="onlinefix">
-                            <span>OnlineFix</span>
-                        </button>
-                        <button class="filter-btn" data-source="xatab">
-                            <span>Xatab</span>
-                        </button>
-                    </div>
+                <div class="radio-inputs">
+                    <label class="radio">
+                        <input type="radio" name="source" value="all" checked>
+                        <span class="name">All Sources</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="source" value="dodi">
+                        <span class="name">DODI</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="source" value="fitgirl">
+                        <span class="name">FitGirl</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="source" value="kaoskrew">
+                        <span class="name">KaosKrew</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="source" value="onlinefix">
+                        <span class="name">OnlineFix</span>
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="source" value="xatab">
+                        <span class="name">Xatab</span>
+                    </label>
                 </div>
             </div>
-
             <div id="loadingSection" class="loading-section hidden">
                 <div class="loading-spinner">
                     <div class="spinner"></div>
                     <p>Searching for games...</p>
                 </div>
             </div>
-
             <div id="resultsSection" class="results-section hidden">
                 <div class="results-header">
                     <h2 id="resultsCount">0 results found</h2>
@@ -159,12 +179,12 @@
             </div>
         </div>
     </main>
+    <script src="script.js"></script>
     <script>
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
         window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-      </script>
-      <script defer src="/_vercel/insights/script.js"></script>
-      <script defer src="/_vercel/speed-insights/script.js"></script>
-    <script src="script.js"></script>
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
 </body>
 </html> 

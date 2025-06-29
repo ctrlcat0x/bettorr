@@ -13,6 +13,7 @@ class BettorApp {
         await this.loadGameData();
         this.setupEventListeners();
         this.setupAutocomplete();
+        this.setupAboutModal();
     }
 
     async loadGameData() {
@@ -44,7 +45,7 @@ class BettorApp {
     setupEventListeners() {
         const searchInput = document.getElementById('searchInput');
         const searchBtn = document.getElementById('searchBtn');
-        const filterBtns = document.querySelectorAll('.filter-btn');
+        const radioInputs = document.querySelectorAll('.radio-inputs input[type=radio]');
 
         // Search button click
         searchBtn.addEventListener('click', () => {
@@ -59,16 +60,23 @@ class BettorApp {
             }
         });
 
-        // Filter button clicks
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.setActiveFilter(btn.dataset.source);
+        // Auto-select all text on focus if input has value
+        searchInput.addEventListener('focus', function() {
+            if (this.value.length > 0) {
+                this.select();
+            }
+        });
+
+        // Radio filter change
+        radioInputs.forEach(radio => {
+            radio.addEventListener('change', () => {
+                this.setActiveFilter(radio.value);
             });
         });
 
         // Click outside to close autocomplete
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.search-input-wrapper')) {
+            if (!e.target.closest('.search-input-outer')) {
                 this.hideAutocomplete();
             }
         });
@@ -171,11 +179,13 @@ class BettorApp {
 
     setActiveFilter(source) {
         this.currentSource = source;
-        
-        // Update button states
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.source === source);
-        });
+        // Update radio states (handled by browser)
+        // Immediately update results with current query
+        const searchInput = document.getElementById('searchInput');
+        const query = searchInput.value.toLowerCase().trim();
+        if (query) {
+            this.performSearch();
+        }
     }
 
     async performSearch() {
@@ -284,6 +294,27 @@ class BettorApp {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    setupAboutModal() {
+        const aboutBtn = document.querySelector('.about-btn');
+        const aboutOverlay = document.getElementById('aboutOverlay');
+        const aboutClose = document.getElementById('aboutClose');
+        // Open overlay
+        aboutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            aboutOverlay.classList.add('active');
+        });
+        // Close overlay
+        aboutClose.addEventListener('click', () => {
+            aboutOverlay.classList.remove('active');
+        });
+        // Close when clicking outside modal
+        aboutOverlay.addEventListener('click', (e) => {
+            if (e.target === aboutOverlay) {
+                aboutOverlay.classList.remove('active');
+            }
+        });
     }
 }
 
