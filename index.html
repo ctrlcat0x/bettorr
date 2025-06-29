@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bettorr - Game Torrent Search</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@10..48,300;10..48,400;10..48,500;10..48,600;10..48,700&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="grain-overlay"></div>
+    
+    <header class="header">
+        <div class="container">
+            <div class="title-section">
+                <h1 class="main-title">bettorr</h1>
+                <a href="https://github.com/ctrlcat0x/bettor" target="_blank" class="github-link">
+                    <i class="fab fa-github"></i>
+                    <span>star us</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="search-section">
+                <div class="search-container">
+                    <div class="search-input-wrapper">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            class="search-input" 
+                            placeholder="Search for games..."
+                            autocomplete="off"
+                        >
+                        <button id="searchBtn" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        <div id="autocomplete" class="autocomplete-dropdown"></div>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-source="all">
+                            <span>All Sources</span>
+                        </button>
+                        <button class="filter-btn" data-source="dodi">
+                            <span>DODI</span>
+                        </button>
+                        <button class="filter-btn" data-source="fitgirl">
+                            <span>FitGirl</span>
+                        </button>
+                        <button class="filter-btn" data-source="kaoskrew">
+                            <span>KaosKrew</span>
+                        </button>
+                        <button class="filter-btn" data-source="onlinefix">
+                            <span>OnlineFix</span>
+                        </button>
+                        <button class="filter-btn" data-source="xatab">
+                            <span>Xatab</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loadingSection" class="loading-section hidden">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Searching for games...</p>
+                </div>
+            </div>
+
+            <div id="resultsSection" class="results-section hidden">
+                <div class="results-header">
+                    <h2 id="resultsCount">0 results found</h2>
+                </div>
+                <div id="resultsList" class="results-list"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html> 
