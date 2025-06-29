@@ -1,0 +1,27 @@
+{
+  "name": "Bettorr - Game Torrent Search Engine",
+  "short_name": "Bettorr",
+  "description": "Search and download PC games from multiple trusted sources including DODI, FitGirl, KaosKrew, OnlineFix, and Xatab",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["entertainment", "games", "utilities"],
+  "lang": "en",
+  "dir": "ltr"
+} 
