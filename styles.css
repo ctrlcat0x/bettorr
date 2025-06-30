@@ -6,11 +6,27 @@
     scrollbar-width: thin;
     scrollbar-color: var(--primary-color) var(--back-color);
 }
+:root[data-theme=" green "]{
+    --primary-color: #84B067;
+    --primary-glow-color: radial-gradient(circle at 50% 50%, #84B0672e 0%, #84B0671a 90%, #00000000 100%);
+}
+:root[data-theme=" purple "]{
+    --primary-color: #8080cf;
+    --primary-glow-color: radial-gradient(circle at 50% 50%, #8080cf2e 0%, #8080cf1a 90%, #00000000 100%);
+}
+:root[data-theme=" blue "]{
+    --primary-color: #0f52ba;
+    --primary-glow-color: radial-gradient(circle at 50% 50%, #0f52ba2e 0%, #0f52ba1a 90%, #00000000 100%);
+}
+:root[data-theme=" seaGreen "]{
+    --primary-color: #2e8b57;
+    --primary-glow-color: radial-gradient(circle at 50% 50%, #2e8b572e 0%, #2e8b571a 90%, #00000000 100%);
+}
 :root {
-    --back-color: rgb(2, 2, 2);
-    --text-color: rgb(255, 255, 255);
-    --primary-color: rgb(15, 82, 186);
-    --primary-glow-color: radial-gradient(circle at 50% 50%, rgba(15,82,186,0.18) 0%, rgba(15,82,186,0.10) 90%, rgba(0,0,0,0.0) 100%);
+    --back-color: #020202;
+    --text-color: #ffffff;
+    --primary-color: #0f52ba;
+    --primary-glow-color: radial-gradient(circle at 50% 50%, #0f52ba2e 0%, #0f52ba1a 90%, #00000000 100%);
     --accent: #1f1f1f;
     --border-color: #222;
     --divider-color: #222;
@@ -662,6 +678,36 @@ body::before {
 }
 .top-bar .github-star-link i {
     font-size: 1.1rem;
+}
+
+.theme-toggle-btn {
+    pointer-events: auto;
+    position: static;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem .7rem;
+    background: var(--primary-color);
+    border-radius: 999px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 1.5px solid var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(132,176,103,0.08);
+    transition: background 0.15s, color 0.15s, border 0.15s;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    outline: none;
+}
+.theme-toggle-btn:hover {
+    background: transparent;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+.theme-toggle-btn .lucide {
+    width: 1.2em;
+    height: 1.2em;
 }
 
 .lucide {
