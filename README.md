@@ -13,7 +13,7 @@
 
 <div align="center">
   <h3>🚀 A modern, minimalistic web interface for searching game torrents from multiple trusted sources</h3>
-  <p>Built with a beautiful dark theme featuring glass morphism effects, grain texture, and blur elements for an immersive gaming experience.</p>
+  <p>Built with a beautiful dark theme featuring glass morphism effects, grain texture, blur, and a complete design overhaul for 2024.</p>
 </div>
 
 ---
@@ -29,7 +29,7 @@
       </td>
       <td align="center">
         <b>🎯 Source Filtering</b><br>
-        Filter results by specific trusted sources
+        Filter results by specific trusted sources (now with 8+ sources)
       </td>
     </tr>
     <tr>
@@ -39,7 +39,7 @@
       </td>
       <td align="center">
         <b>🎨 Modern UI</b><br>
-        Dark theme with glass morphism and blur effects
+        Complete design overhaul: glass morphism, dark theme, sharp corners, compact spacing, and beautiful theming
       </td>
     </tr>
     <tr>
@@ -50,6 +50,26 @@
       <td align="center">
         <b>🔗 Direct Downloads</b><br>
         One-click magnet link downloads
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <b>🎨 Theming</b><br>
+        Multiple accent color themes, easy toggle, and PWA support
+      </td>
+      <td align="center">
+        <b>⌨️ Keyboard Shortcuts</b><br>
+        Ctrl+K to focus search, Enter to search, and more
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <b>♿ Accessibility</b><br>
+        Keyboard navigation, focus management, and screen reader friendly
+      </td>
+      <td align="center">
+        <b>🆕 New Sources</b><br>
+        RuTracker, Shisuy, TinyRepacks, and more
       </td>
     </tr>
   </table>
@@ -82,9 +102,23 @@
       </td>
     </tr>
     <tr>
-      <td align="center" colspan="2">
+      <td align="center">
         <b>🎯 Xatab</b><br>
         Game repacks and releases with Russian localization
+      </td>
+      <td align="center">
+        <b>🧲 RuTracker</b><br>
+        Massive Russian tracker with a huge game library
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <b>🦊 Shisuy</b><br>
+        Curated repacks and game releases
+      </td>
+      <td align="center">
+        <b>🧩 TinyRepacks</b><br>
+        Small-size repacks for bandwidth-conscious users
       </td>
     </tr>
   </table>
@@ -102,6 +136,7 @@
    - Type in the search bar to find your favorite games
    - Enjoy intelligent autocomplete suggestions as you type
    - Get instant results from multiple sources
+   - Use keyboard shortcuts (Ctrl+K, /, Enter, etc.) for fast navigation
 
 ### 2. **🎯 Filter by Source**
    - Use filter buttons to search within specific sources
@@ -113,6 +148,10 @@
    - Get direct magnet links for immediate downloading
    - No redirects, no waiting, just pure speed
 
+### 4. **🎨 Switch Themes**
+   - Use the theme toggle button to cycle through beautiful accent colors
+   - Enjoy a consistent, modern look in any color
+   - 
 ---
 
 ## 🛠️ Technology Stack
@@ -126,7 +165,7 @@
       </td>
       <td align="center">
         <b>🎨 Design</b><br>
-        Glass Morphism, Dark Theme, Animations
+        Glass Morphism, Dark Theme, Animations, Theming
       </td>
     </tr>
     <tr>
@@ -142,7 +181,7 @@
     <tr>
       <td align="center" colspan="2">
         <b>🔧 Tools</b><br>
-        Font Awesome Icons, Google Fonts (Bricolage Grotesque, Fira Mono, Inter)
+        Lucide Icons, Google Fonts (Inter)
       </td>
     </tr>
   </table>
@@ -165,7 +204,10 @@ bettorr/
     ├── fitgirl.json
     ├── kaoskrew.json
     ├── onlinefix.json
-    └── xatab.json
+    ├── xatab.json
+    ├── rutracker.json
+    ├── shisuy.json
+    └── tinyrepacks.json
 ```
 
 ---
