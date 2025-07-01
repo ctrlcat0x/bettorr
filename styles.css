@@ -299,12 +299,11 @@ html, body {
     top: calc(100% + 8px);
     right: 0;
     width: 200px;
-    background: var(--glass-bg);
+    background: var(--bg-color);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     padding: 0.5rem;
     z-index: 10;
-    backdrop-filter: var(--glass-blur);
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 .dropdown-header {
