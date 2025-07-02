@@ -707,7 +707,6 @@ html, body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-fill-color: transparent;
     -webkit-text-fill-color: transparent;
     margin: .5rem 0rem 1rem 1rem;
     text-align: left;
