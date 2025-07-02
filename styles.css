@@ -665,24 +665,98 @@ html, body {
   pointer-events: auto;
 }
 
+.toast-notification {
+    position: fixed;
+    bottom: 4rem;
+    right: 1rem;
+    z-index: 9999;
+    background: var(--accent-bg-20);
+    color: var(--accent-color);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 1.25Srem;
+    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateY(40px);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.toast-notification.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
 #resultsTitle {
     display: block;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: var(--accent-color);
+    letter-spacing: -0.01em;
+    background: var(--accent-color);
+    color: #fff;
     background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-bg-20) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-fill-color: transparent;
-    -webkit-text-fill-color: transparent;
-    margin: 0.5rem 0rem 1.5rem 0.5rem;
+    margin-bottom: 1.5rem;
+    margin-top: 0.5rem;
     text-align: left;
     transition: color 0.2s, background 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 @media (max-width: 600px) {
     #resultsTitle {
         font-size: 1.1rem;
         margin-bottom: 1rem;
     }
+}
+
+.trusted-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    margin-left: 0.25rem;
+    cursor: pointer;
+}
+.trusted-icon {
+    color: var(--accent-color);
+    stroke: var(--accent-color);
+    background: none;
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+    transition: color 0.2s;
+}
+.trusted-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    background: var(--accent-color);
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 0.25rem 0.75rem;
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.13);
+    transition: opacity 0.2s, visibility 0.2s;
+}
+.trusted-icon-wrapper:hover .trusted-tooltip,
+.trusted-icon-wrapper:focus .trusted-tooltip,
+.trusted-icon-wrapper:focus-visible .trusted-tooltip {
+    visibility: visible;
+    opacity: 1;
 }

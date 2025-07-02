@@ -8,6 +8,13 @@ class BettorApp {
         this.selectedAutocompleteIndex = -1;
         this.sortKey = null;
         this.sortOrder = 'desc';
+        this.remoteEndpoints = [
+            'https://hydralinks.pages.dev/sources/fitgirl.json',
+            'https://hydralinks.pages.dev/sources/dodi.json',
+            'https://hydralinks.pages.dev/sources/xatab.json',
+            'https://raw.githubusercontent.com/Shisuiicaro/source/refs/heads/main/shisuyssource.json',
+        ];
+        this.remoteCache = {};
 
         // DOM Elements
         this.cacheDOMElements();
@@ -87,6 +94,28 @@ class BettorApp {
     
     async loadGameData() {
         const sources = ['dodi', 'fitgirl', 'kaoskrew', 'onlinefix', 'xatab', 'rutracker', 'shisuy', 'tinyrepacks'];
+        const cacheKey = 'bettorr_game_data_v1';
+        const cacheTimeKey = 'bettorr_game_data_time_v1';
+        const cacheTTL = 24 * 60 * 60 * 1000; // 24 hours
+        let useCache = false;
+        let cachedData = null;
+        try {
+            const cached = localStorage.getItem(cacheKey);
+            const cachedTime = localStorage.getItem(cacheTimeKey);
+            if (cached && cachedTime && (Date.now() - parseInt(cachedTime, 10) < cacheTTL)) {
+                cachedData = JSON.parse(cached);
+                useCache = true;
+            }
+        } catch (e) { useCache = false; }
+
+        if (useCache && cachedData) {
+            this.gameData = cachedData.gameData || {};
+            this.allGames = cachedData.allGames || [];
+            return;
+        }
+
+        this.gameData = {};
+        this.allGames = [];
         for (const source of sources) {
             try {
                 const response = await fetch(`magnet_data/${source}.json`);
@@ -102,9 +131,39 @@ class BettorApp {
                 console.warn(`Failed to load ${source}.json:`, error);
             }
         }
+        // Save to cache
+        try {
+            localStorage.setItem(cacheKey, JSON.stringify({ gameData: this.gameData, allGames: this.allGames }));
+            localStorage.setItem(cacheTimeKey, Date.now().toString());
+        } catch (e) {}
     }
     
-    performSearch(query) {
+    async fetchRemoteSearchResults(query) {
+        for (const url of this.remoteEndpoints) {
+            // Use cache if available
+            let remoteData = this.remoteCache[url];
+            if (!remoteData) {
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) continue;
+                    const json = await response.json();
+                    remoteData = json.downloads || [];
+                    this.remoteCache[url] = remoteData;
+                } catch (e) {
+                    continue;
+                }
+            }
+            const results = remoteData.filter(game =>
+                game.title && game.title.toLowerCase().includes(query.toLowerCase())
+            );
+            if (results.length > 0) {
+                return results;
+            }
+        }
+        return [];
+    }
+
+    async performSearch(query) {
         this.currentQuery = query.toLowerCase().trim();
         this.hideAutocomplete();
         this.updateSortableHeaders();
@@ -114,14 +173,27 @@ class BettorApp {
             return;
         }
         this.setResultsTitle(`Search results for: ${this.els.searchInput.value}`);
-        this.showState('loading');
-        setTimeout(() => {
-            let results = this.allGames.filter(game => 
+        this.showState('loading', 'Searching...');
+        setTimeout(async () => {
+            let results = this.allGames.filter(game =>
                 this.activeSources.includes(game.source.toLowerCase()) &&
                 game.title.toLowerCase().includes(this.currentQuery)
             );
             results = this.getSortedResults(results);
-            this.displayResults(results);
+            if (results.length > 0) {
+                this.displayResults(results);
+            } else {
+                // Show loading indicator for remote search
+                this.showState('loading', 'Searching with external sources...');
+                // Fetch from remote endpoints
+                const remoteResults = await this.fetchRemoteSearchResults(this.currentQuery);
+                if (remoteResults.length > 0) {
+                    this.displayResults(remoteResults);
+                } else {
+                    this.setResultsTitle('');
+                    this.showState('no-results');
+                }
+            }
         }, 300);
     }
 
@@ -306,11 +378,21 @@ class BettorApp {
 
     // --- UI State & Toggles ---
 
-    showState(state) {
+    showState(state, loadingText) {
         this.els.initialState.classList.add('hidden');
         this.els.loadingState.classList.add('hidden');
         this.els.noResultsState.classList.add('hidden');
         this.els.resultsTable.classList.add('hidden');
+
+        if (state === 'loading' && loadingText) {
+            const loadingState = this.els.loadingState;
+            const p = loadingState.querySelector('p');
+            if (p) p.textContent = loadingText;
+        } else if (state === 'loading') {
+            const loadingState = this.els.loadingState;
+            const p = loadingState.querySelector('p');
+            if (p) p.textContent = 'Searching...';
+        }
 
         switch(state) {
             case 'initial':
@@ -391,16 +473,32 @@ class BettorApp {
 
     copyToClipboard(text, element) {
         navigator.clipboard.writeText(text).then(() => {
-            element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>`;
+            element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>`;
             element.classList.add('copied');
             element.title = "Copied!";
 
+            // Show toast notification
+            this.showToast('Magnet link copied!');
+
             setTimeout(() => {
-                element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+                element.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-icon lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
                 element.classList.remove('copied');
                 element.title = "Copy Magnet Link";
             }, 2000);
         });
+    }
+
+    showToast(message) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add('show');
+        toast.classList.remove('hidden');
+        clearTimeout(this.toastTimeout);
+        this.toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+            toast.classList.add('hidden');
+        }, 2000);
     }
 
     escapeHtml(text) {
