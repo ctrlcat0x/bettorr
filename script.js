@@ -195,7 +195,7 @@ class BettorApp {
         this.hideAutocomplete();
         this.updateSortableHeaders();
         if (!this.currentQuery) {
-            this.setResultsTitle('Featured Games');
+            this.setResultsTitle('🔥 Hot Games Right Now');
             this.showState('initial');
             return;
         }
@@ -237,10 +237,39 @@ class BettorApp {
     }
 
     renderResultsTable(results) {
-        // Show table, hide grid
+        if (!this.els.resultsTable) {
+            const table = document.createElement('table');
+            table.className = 'results-table';
+            const tbody = document.createElement('tbody');
+            tbody.id = 'resultsBody';
+            table.appendChild(tbody);
+            this.els.resultsContainer.appendChild(table);
+            this.els.resultsTable = table;
+            this.els.resultsBody = tbody;
+        }
         this.els.resultsTable.style.display = '';
         let grid = document.getElementById('resultsGrid');
         if (grid) grid.remove();
+
+        let thead = this.els.resultsTable.querySelector('thead');
+        if (thead) thead.remove();
+        thead = document.createElement('thead');
+        thead.innerHTML = `
+            <tr>
+                <th class="col-name sortable-header" data-sort-key="title">Name
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-narrow-wide-icon lucide-arrow-up-narrow-wide"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="M11 12h4"/><path d="M11 16h7"/><path d="M11 20h10"/></svg>
+                </th>
+                <th class="col-date sortable-header" data-sort-key="uploadDate">Upload Date
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-narrow-wide-icon lucide-arrow-up-narrow-wide"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="M11 12h4"/><path d="M11 16h7"/><path d="M11 20h10"/></svg>
+                </th>
+                <th class="col-size sortable-header" data-sort-key="fileSize">File Size
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-narrow-wide-icon lucide-arrow-up-narrow-wide"><path d="m3 8 4-4 4 4"/><path d="M7 4v16"/><path d="M11 12h4"/><path d="M11 16h7"/><path d="M11 20h10"/></svg>
+                </th>
+                <th class="col-source">Source</th>
+                <th class="col-actions">Download</th>
+            </tr>
+        `;
+        this.els.resultsTable.insertBefore(thead, this.els.resultsBody);
         this.els.resultsBody.innerHTML = '';
         if (results.length === 0) {
             this.setResultsTitle('');
@@ -265,11 +294,21 @@ class BettorApp {
                 }
             );
         }
+        // Re-attach sorting event listeners
+        this.sortableHeaders = Array.from(this.els.resultsTable.querySelectorAll('.sortable-header'));
+        this.sortableHeaders.forEach(th => {
+            th.addEventListener('click', (e) => {
+                if (th.classList.contains('disabled')) return;
+                this.handleSortClick(th);
+            });
+        });
     }
 
     async renderResultsGrid(results) {
         // Hide table, show grid
-        this.els.resultsTable.style.display = 'none';
+        if (this.els.resultsTable) {
+            this.els.resultsTable.style.display = 'none';
+        }
         let grid = document.getElementById('resultsGrid');
         if (!grid) {
             grid = document.createElement('div');
@@ -566,33 +605,50 @@ class BettorApp {
     // --- UI State & Toggles ---
 
     showState(state, loadingText) {
-        this.els.initialState.classList.add('hidden');
-        this.els.loadingState.classList.add('hidden');
-        this.els.noResultsState.classList.add('hidden');
-        this.els.resultsTable.classList.add('hidden');
-
-        if (state === 'loading' && loadingText) {
-            const loadingState = this.els.loadingState;
-            const p = loadingState.querySelector('p');
-            if (p) p.textContent = loadingText;
-        } else if (state === 'loading') {
-            const loadingState = this.els.loadingState;
-            const p = loadingState.querySelector('p');
-            if (p) p.textContent = 'Searching...';
-        }
+        const existingInitial = document.getElementById('initialState');
+        if (existingInitial) existingInitial.remove();
+        const existingLoading = document.getElementById('loadingState');
+        if (existingLoading) existingLoading.remove();
+        const existingNoResults = document.getElementById('noResultsState');
+        if (existingNoResults) existingNoResults.remove();
+        if (this.els.resultsTable) this.els.resultsTable.classList.add('hidden');
 
         switch(state) {
-            case 'initial':
-                this.els.initialState.classList.remove('hidden');
+            case 'initial': {
+                // Dynamically create and show initial state message
+                const initialDiv = document.createElement('div');
+                initialDiv.id = 'initialState';
+                initialDiv.className = 'table-state';
+                initialDiv.innerHTML = `
+                    <p>Search for a game to get started.</p>
+                    <p>(e.g. GTA V, Red Dead Redemption 2, Cyberpunk 2077, etc.)</p>
+                `;
+                this.els.resultsContainer.appendChild(initialDiv);
                 break;
-            case 'loading':
-                this.els.loadingState.classList.remove('hidden');
+            }
+            case 'loading': {
+                // Dynamically create and show loading state
+                const loadingDiv = document.createElement('div');
+                loadingDiv.id = 'loadingState';
+                loadingDiv.className = 'table-state';
+                loadingDiv.innerHTML = `
+                    <div class="spinner"></div>
+                    <p>${loadingText || 'Searching...'}</p>
+                `;
+                this.els.resultsContainer.appendChild(loadingDiv);
                 break;
-            case 'no-results':
-                this.els.noResultsState.classList.remove('hidden');
+            }
+            case 'no-results': {
+                // Dynamically create and show no-results state
+                const noResultsDiv = document.createElement('div');
+                noResultsDiv.id = 'noResultsState';
+                noResultsDiv.className = 'table-state';
+                noResultsDiv.innerHTML = `<p>No results found.</p>`;
+                this.els.resultsContainer.appendChild(noResultsDiv);
                 break;
+            }
             case 'results':
-                this.els.resultsTable.classList.remove('hidden');
+                if (this.els.resultsTable) this.els.resultsTable.classList.remove('hidden');
                 break;
         }
     }
@@ -726,9 +782,8 @@ class BettorApp {
             }
         }
         if (featuredGames.length > 0) {
-            this.setResultsTitle('Featured Games');
+            this.setResultsTitle('🔥 Hot Games Right Now');
             this.displayResults(featuredGames);
-            this.els.initialState.classList.add('hidden');
         } else {
             this.setResultsTitle('');
             this.showState('initial');
@@ -740,6 +795,9 @@ class BettorApp {
         if (titleEl) {
             titleEl.textContent = title;
             titleEl.style.display = title ? '' : 'none';
+            if (window.gsap && title) {
+                gsap.fromTo(titleEl, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power1.out' });
+            }
         }
     }
 

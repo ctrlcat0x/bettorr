@@ -108,7 +108,9 @@ html, body {
     align-items: center;
     gap: 1.5rem;
 }
-
+.header-right {
+    gap: 0.5rem;
+}
 .header-title {
     font-weight: 700;
     font-size: 1.25rem;
@@ -122,6 +124,8 @@ html, body {
     padding-top: .25rem;
     font-size: 0.9rem;
     transition: color 0.2s ease;
+    vertical-align: middle;
+    margin-bottom: -0.2rem;
 }
 .header-link:hover {
     color: var(--accent-color);
@@ -131,23 +135,22 @@ html, body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: var(--glass-bg);
+    background: var(--accent-bg-5);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     text-decoration: none;
     font-size: 0.95rem;
-    font-weight: 500;
+    font-weight: 600;
     border-radius: var(--border-radius);
     padding: 0 1rem;
     height: 40px;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    transition: all 0.2s;
 }
-.github-link:hover {
+.github-link:hover, .theme-toggle-btn:hover {
     background: var(--accent-bg-20);
     color: var(--accent-color);
     border-color: var(--accent-color);
-    opacity: 1;
 }
 .github-link svg{
     width: 15px;
@@ -158,10 +161,9 @@ html, body {
 }
 
 .theme-toggle-btn {
-    /* background: none; */
+    background: var(--accent-bg-5);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    /* width: 32px; */
     height: 40px;
     border-radius: var(--border-radius);
     cursor: pointer;
@@ -170,12 +172,6 @@ html, body {
     align-items: center;
     justify-content: center;
     transition: background-color 0.2s, border-color 0.2s;
-    background: var(--glass-bg);
-}
-.theme-toggle-btn:hover {
-    background: var(--accent-bg-20);
-    color: var(--accent-color);
-    border-color: var(--accent-color);
 }
 .theme-toggle-btn svg {
     width: 20px;
@@ -591,6 +587,9 @@ html, body {
     -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 -6px 50px -8px rgba(0,0,0,1);
 }
+.footer-center {
+    font-size: 0.9rem;
+}
 .footer-right a {
     color: var(--text-secondary);
     text-decoration: none;
@@ -705,10 +704,9 @@ html, body {
     color: #fff;
     background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-bg-20) 100%);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin: .5rem 0rem 1rem 1rem;
+    margin: .5rem 0rem 1rem 0rem;
     text-align: left;
     transition: color 0.2s, background 0.2s;
     white-space: nowrap;
