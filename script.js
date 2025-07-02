@@ -35,11 +35,10 @@ class BettorApp {
     async init() {
         this.setupEventListeners();
         this.initializeTheme();
-        
         await this.loadGameData();
-        
         // After data is loaded, create a unique list of titles for autocomplete
         this.autocompleteItems = [...new Set(this.allGames.map(game => game.title))];
+        this.showFeaturedGames();
     }
 
     setupEventListeners() {
@@ -110,9 +109,11 @@ class BettorApp {
         this.hideAutocomplete();
         this.updateSortableHeaders();
         if (!this.currentQuery) {
+            this.setResultsTitle('Featured Games');
             this.showState('initial');
             return;
         }
+        this.setResultsTitle(`Search results for: ${this.els.searchInput.value}`);
         this.showState('loading');
         setTimeout(() => {
             let results = this.allGames.filter(game => 
@@ -129,15 +130,28 @@ class BettorApp {
         this.els.resultsBody.innerHTML = '';
 
         if (results.length === 0) {
+            this.setResultsTitle('');
             this.showState('no-results');
             return;
         }
-        
         this.showState('results');
         results.forEach(game => {
             const row = this.createResultRow(game);
             this.els.resultsBody.appendChild(row);
         });
+        // GSAP animation for table rows
+        if (window.gsap) {
+            gsap.from(
+                this.els.resultsBody.querySelectorAll('tr'),
+                {
+                    opacity: 0,
+                    y: 32,
+                    duration: 0.6,
+                    stagger: 0.08,
+                    ease: 'power2.out',
+                }
+            );
+        }
     }
 
     createResultRow(game) {
@@ -399,6 +413,50 @@ class BettorApp {
             this.sortableHeaders.forEach(th => th.classList.remove('disabled'));
         } else {
             this.sortableHeaders.forEach(th => th.classList.add('disabled'));
+        }
+    }
+
+    showFeaturedGames() {
+        // Only show if there is no search query
+        if (this.els.searchInput.value.trim() !== '') return;
+        const featuredTitles = [
+            'Red Dead Redemption 2',
+            'Cyberpunk 2077',
+            'Ghost of Tsushima',
+            'The Last of Us Part II',
+            'God of War: Ragnarök',
+            'Alan Wake 2',
+            'Clair Obscur: Expedition 33',
+            'Metaphor: ReFantazio',
+            "Baldur's Gate 3",
+            'Hitman: World of Assassination',
+            'The Witcher 3: Wild Hunt',
+            'Hades II ',
+            'Balatro',
+            'GTA V',
+        ];
+        const featuredGames = [];
+        for (const title of featuredTitles) {
+            const match = this.allGames.find(game => game.title.toLowerCase().includes(title.toLowerCase()));
+            if (match && !featuredGames.some(g => g.title === match.title && g.source === match.source)) {
+                featuredGames.push(match);
+            }
+        }
+        if (featuredGames.length > 0) {
+            this.setResultsTitle('Featured Games');
+            this.displayResults(featuredGames);
+            this.els.initialState.classList.add('hidden');
+        } else {
+            this.setResultsTitle('');
+            this.showState('initial');
+        }
+    }
+
+    setResultsTitle(title) {
+        const titleEl = document.getElementById('resultsTitle');
+        if (titleEl) {
+            titleEl.textContent = title;
+            titleEl.style.display = title ? '' : 'none';
         }
     }
 }

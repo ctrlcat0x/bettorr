@@ -9,7 +9,7 @@
 :root {
     --bg-color: hsl(240, 10%, 3.9%);
     --header-footer-bg: hsla(240, 10%, 4%, 0.75);
-    --border-color: color-mix(in srgb, var(--accent-color) 10%, transparent);
+    --border-color: color-mix(in srgb, var(--accent-color) 12%, transparent);
     --text-primary: hsl(0, 0%, 98%);
     --text-secondary: hsl(240, 5%, 64%);
     --font-main: 'Inter', sans-serif;
@@ -338,7 +338,7 @@ html, body {
     top: calc(100% + 4px);
     left: 0;
     right: 0;
-    background: var(--header-footer-bg);
+    background: hsla(240, 10%, 4%, 0.95);
     border: 1px solid var(--border-color);
     border-bottom-left-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
@@ -348,7 +348,7 @@ html, body {
     max-height: 300px;
     overflow-y: auto;
     z-index: 100;
-    backdrop-filter: var(--glass-blur);
+    backdrop-filter: rgba(255,255,255,0.02);
     -webkit-backdrop-filter: var(--glass-blur);
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
@@ -432,8 +432,9 @@ html, body {
 .results-table tbody tr:last-child td:last-child {
     border-bottom-right-radius: var(--border-radius);
 }
-.col-name { width: 45%; }
-.col-date, .col-size, .col-source { width: 15%; }
+.col-name { width: 54%; }
+.col-date, .col-size { width: 13%; }
+.col-source { width: 10%; }
 .col-actions { width: 10%; text-align: right; }
 
 .result-name {
@@ -662,4 +663,26 @@ html, body {
   opacity: 0.5;
   cursor: not-allowed;
   pointer-events: auto;
+}
+
+#resultsTitle {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--accent-color);
+    background: linear-gradient(90deg, var(--accent-color) 0%, var(--accent-bg-20) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    -webkit-text-fill-color: transparent;
+    margin: 0.5rem 0rem 1.5rem 0.5rem;
+    text-align: left;
+    transition: color 0.2s, background 0.2s;
+}
+@media (max-width: 600px) {
+    #resultsTitle {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
 }
