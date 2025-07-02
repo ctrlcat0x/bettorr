@@ -18,6 +18,7 @@
     --glass-blur: blur(8px);
     --border-radius: 8px;
     --accent-bg-20: color-mix(in srgb, var(--accent-color) 20%, transparent);
+    --accent-bg-5: color-mix(in srgb, var(--accent-color) 5%, transparent);
 }
 
 :root[data-theme="green"] {
@@ -123,7 +124,7 @@ html, body {
     transition: color 0.2s ease;
 }
 .header-link:hover {
-    color: var(--text-primary);
+    color: var(--accent-color);
 }
 
 .github-link {
@@ -143,8 +144,8 @@ html, body {
     transition: background 0.2s, color 0.2s, border-color 0.2s;
 }
 .github-link:hover {
-    background: var(--accent-color);
-    color: #fff;
+    background: var(--accent-bg-20);
+    color: var(--accent-color);
     border-color: var(--accent-color);
     opacity: 1;
 }
@@ -172,9 +173,9 @@ html, body {
     background: var(--glass-bg);
 }
 .theme-toggle-btn:hover {
-    background-color: var(--accent-color);
+    background: var(--accent-bg-20);
+    color: var(--accent-color);
     border-color: var(--accent-color);
-    color: #fff;
 }
 .theme-toggle-btn svg {
     width: 20px;
@@ -230,7 +231,7 @@ html, body {
 #searchInput {
     width: 100%;
     height: 40px;
-    background: var(--glass-bg);
+    background: var(--accent-bg-5);
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
     color: var(--text-primary);
@@ -290,8 +291,8 @@ html, body {
     z-index: 100;
 }
 .view-btn:hover {
-    background: var(--accent-color);
-    color: #fff;
+    background: var(--accent-bg-20);
+    color: var(--accent-color);
     border-color: var(--accent-color);
 }
 .source-filter-dropdown {
@@ -358,8 +359,8 @@ html, body {
     font-size: 0.9rem;
 }
 .autocomplete-item:hover, .autocomplete-item.highlighted {
-    background-color: var(--accent-color);
-    color: #fff;
+    background-color: var(--accent-bg-20);
+    color: var(--accent-color);
 }
 .autocomplete-item:not(:last-child) {
     border-bottom: 1px solid var(--border-color);
@@ -503,8 +504,8 @@ html, body {
     }
 }
 .magnet-btn:hover {
-    background: var(--accent-color);
-    color: #fff;
+    background: var(--accent-bg-20);
+    color: var(--accent-color);
     border-color: var(--accent-color);
 }
 .copy-btn {
@@ -664,7 +665,10 @@ html, body {
   cursor: not-allowed;
   pointer-events: auto;
 }
-
+.view-btns {
+    display: flex;
+    gap: .5rem;
+}
 .toast-notification {
     position: fixed;
     bottom: 4rem;
@@ -676,7 +680,7 @@ html, body {
     border: 1px solid var(--border-color);
     padding: 0.75rem 1.5rem;
     font-weight: 600;
-    font-size: 1.25Srem;
+    font-size: 1.25rem;
     box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18);
     opacity: 0;
     pointer-events: none;
@@ -694,7 +698,7 @@ html, body {
 
 #resultsTitle {
     display: block;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     letter-spacing: -0.01em;
     background: var(--accent-color);
@@ -704,8 +708,8 @@ html, body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-fill-color: transparent;
-    margin-bottom: 1.5rem;
-    margin-top: 0.5rem;
+    -webkit-text-fill-color: transparent;
+    margin: .5rem 0rem 1rem 1rem;
     text-align: left;
     transition: color 0.2s, background 0.2s;
     white-space: nowrap;
@@ -759,4 +763,103 @@ html, body {
 .trusted-icon-wrapper:focus-visible .trusted-tooltip {
     visibility: visible;
     opacity: 1;
+}
+
+.results-grid {
+    display: grid;
+    gap: 2rem 1.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    padding: 0.5rem 0;
+}
+
+.results-grid.grid-4 {
+  grid-template-columns: repeat(4, minmax(260px, 1fr));
+}
+.results-grid.grid-3 {
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+}
+.results-grid.grid-2 {
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+}
+
+.game-card {
+    background: var(--accent-bg-5);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 16px 0 rgba(0,0,0,0.10);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    min-width: 260px;
+    position: relative;
+}
+.game-card:hover {
+    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.18);
+    border-color: var(--accent-color);
+}
+.game-card-art {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: #18181b;
+    border-bottom: 1px solid var(--border-color);
+    display: block;
+}
+.game-card-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1rem 0.5rem 1rem;
+    gap: 0.5rem;
+}
+.game-card-title {
+    font-size: 1.1rem;
+    min-height: 2.6em;
+    font-weight: 600;
+    color: var(--accent-color);
+    overflow: hidden;
+    display: -webkit-box;
+    line-clamp: 3;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    word-break: break-word;
+}
+.game-card-sub {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.93rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+}
+.game-card-sub span svg {
+    vertical-align: middle;
+    margin-bottom: .45rem;
+}
+.game-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.game-card .magnet-btn {
+    flex: 1 1 auto;
+    font-size: 1.05rem;
+    padding: 0.6rem 0.5rem;
+    justify-content: center;
+}
+.game-card .copy-btn {
+    min-width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

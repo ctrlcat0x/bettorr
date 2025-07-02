@@ -15,7 +15,19 @@ class BettorApp {
             'https://raw.githubusercontent.com/Shisuiicaro/source/refs/heads/main/shisuyssource.json',
         ];
         this.remoteCache = {};
-
+        this.coverCache = {};
+        this.viewModes = ['table', 'grid-4', 'grid-3', 'grid-2'];
+        this.viewModeKey = 'bettorr_view_mode';
+        this.viewMode = localStorage.getItem(this.viewModeKey) || 'table';
+        // RAWG API key cycling
+        this.rawgApiKeys = [
+            'a7884c7fd3aa426682d33a193f162652',
+            '387f6afe22434d7e9bc9cbf04b262973',
+            '20822d1bdc9d470a9b7c65a5adb84b97'
+        ];
+        this.rawgApiKeyIndex = 0;
+        this.rawgApiKeyUsage = 0;
+        this.rawgApiKeyUsageLimit = 5; // switch after 5 requests
         // DOM Elements
         this.cacheDOMElements();
         
@@ -27,7 +39,9 @@ class BettorApp {
         this.els = {
             searchInput: document.getElementById('searchInput'),
             autocompleteDropdown: document.getElementById('autocomplete'),
-            viewBtn: document.getElementById('viewBtn'),
+            filterBtn: document.getElementById('filterBtn'),
+            viewToggleBtn: document.getElementById('viewToggleBtn'),
+            viewToggleIcon: document.getElementById('viewToggleIcon'),
             sourceFilterDropdown: document.getElementById('sourceFilterDropdown'),
             sourceCheckboxes: document.querySelectorAll('.source-filter-dropdown input[type="checkbox"]'),
             resultsTable: document.querySelector('.results-table'),
@@ -36,6 +50,7 @@ class BettorApp {
             loadingState: document.getElementById('loadingState'),
             noResultsState: document.getElementById('noResultsState'),
             themeToggleBtn: document.querySelector('[data-theme-btn]'),
+            resultsContainer: document.getElementById('resultsContainer'),
         };
     }
 
@@ -60,10 +75,13 @@ class BettorApp {
         });
         
         // View button and source filtering
-        this.els.viewBtn.addEventListener('click', () => this.toggleSourceFilter());
+        this.els.filterBtn.addEventListener('click', () => this.toggleSourceFilter());
         this.els.sourceCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', () => this.handleSourceChange());
         });
+
+        // View mode toggle
+        this.els.viewToggleBtn.addEventListener('click', () => this.toggleViewMode());
 
         // Global click listener to close dropdowns
         document.addEventListener('click', (e) => this.handleGlobalClick(e));
@@ -163,6 +181,15 @@ class BettorApp {
         return [];
     }
 
+    limitResultsPerSource(results, maxPerSource = 3) {
+        const sourceCount = {};
+        return results.filter(game => {
+            const src = (game.source || '').toLowerCase();
+            sourceCount[src] = (sourceCount[src] || 0) + 1;
+            return sourceCount[src] <= maxPerSource;
+        });
+    }
+
     async performSearch(query) {
         this.currentQuery = query.toLowerCase().trim();
         this.hideAutocomplete();
@@ -180,13 +207,17 @@ class BettorApp {
                 game.title.toLowerCase().includes(this.currentQuery)
             );
             results = this.getSortedResults(results);
+            // Restrict to 3 per source
+            results = this.limitResultsPerSource(results, 3);
             if (results.length > 0) {
                 this.displayResults(results);
             } else {
                 // Show loading indicator for remote search
                 this.showState('loading', 'Searching with external sources...');
                 // Fetch from remote endpoints
-                const remoteResults = await this.fetchRemoteSearchResults(this.currentQuery);
+                let remoteResults = await this.fetchRemoteSearchResults(this.currentQuery);
+                // Restrict to 3 per source for remote as well
+                remoteResults = this.limitResultsPerSource(remoteResults, 3);
                 if (remoteResults.length > 0) {
                     this.displayResults(remoteResults);
                 } else {
@@ -198,9 +229,19 @@ class BettorApp {
     }
 
     displayResults(results) {
-        results = this.getSortedResults(results);
-        this.els.resultsBody.innerHTML = '';
+        if (this.viewMode !== 'table') {
+            this.renderResultsGrid(results);
+        } else {
+            this.renderResultsTable(results);
+        }
+    }
 
+    renderResultsTable(results) {
+        // Show table, hide grid
+        this.els.resultsTable.style.display = '';
+        let grid = document.getElementById('resultsGrid');
+        if (grid) grid.remove();
+        this.els.resultsBody.innerHTML = '';
         if (results.length === 0) {
             this.setResultsTitle('');
             this.showState('no-results');
@@ -226,17 +267,120 @@ class BettorApp {
         }
     }
 
-    createResultRow(game) {
-        const tr = document.createElement('tr');
-        const uploadDate = new Date(game.uploadDate).toLocaleDateString('en-IN'); // DD-MM-YYYY format
+    async renderResultsGrid(results) {
+        // Hide table, show grid
+        this.els.resultsTable.style.display = 'none';
+        let grid = document.getElementById('resultsGrid');
+        if (!grid) {
+            grid = document.createElement('div');
+            grid.id = 'resultsGrid';
+            grid.className = 'results-grid';
+        }
+        grid.innerHTML = '';
+        this.els.resultsContainer.appendChild(grid);
+        // Set grid columns class
+        grid.classList.remove('grid-2', 'grid-3', 'grid-4');
+        if (this.viewMode === 'grid-2') grid.classList.add('grid-2');
+        else if (this.viewMode === 'grid-3') grid.classList.add('grid-3');
+        else if (this.viewMode === 'grid-4') grid.classList.add('grid-4');
+        // Show loading spinner while rendering
+        this.showState('loading', 'Searching...');
 
-        tr.innerHTML = `
-            <td class="col-name"><div class="result-name">${this.escapeHtml(game.title)}</div></td>
-            <td class="col-date"><span class="result-date">${uploadDate}</span></td>
-            <td class="col-size"><span class="result-size">${game.fileSize}</span></td>
-            <td class="col-source"><span class="result-source">${game.source}</span></td>
-            <td class="col-actions">
-                <div class="result-actions">
+        // Stagger index for animation
+        let revealIndex = 0;
+
+        // Observer for lazy loading and reveal animation
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    const img = card.querySelector('img');
+                    if (img && img.dataset.src) {
+                        img.src = img.dataset.src;
+                        img.removeAttribute('data-src');
+                    }
+                    // Animate in with GSAP when card enters viewport, with stagger
+                    if (window.gsap) {
+                        gsap.fromTo(card, {
+                            opacity: 0,
+                            y: 32
+                        }, {
+                            opacity: 1,
+                            y: 0,
+                            duration: 0.6,
+                            delay: revealIndex * 0.08,
+                            ease: 'power2.out',
+                        });
+                        revealIndex++;
+                    }
+                    obs.unobserve(card);
+                }
+            });
+        }, {
+            rootMargin: '0px',
+            threshold: 0.15
+        });
+
+        // Initialize screenshot index for cycling through available screenshots
+        let screenshotIndex = 0;
+        let firstCardLoaded = false;
+
+        for (const game of results) {
+            let selectedCoverUrl = null;
+            // Only use dynamic screenshots for search results and if available
+            if (this.currentQuery.length > 0 && game.short_screenshots && game.short_screenshots.length > 0) {
+                selectedCoverUrl = game.short_screenshots[screenshotIndex % game.short_screenshots.length].image;
+                screenshotIndex++;
+            }
+            // Call createGameCard with the selected coverUrl, allowing it to override default fetching
+            const card = await this.createGameCard(game, selectedCoverUrl);
+            grid.appendChild(card);
+            observer.observe(card);
+            if (!firstCardLoaded) {
+                this.showState('results');
+                firstCardLoaded = true;
+            }
+        }
+    }
+
+    async createGameCard(game, preselectedCoverUrl = null) {
+        let coverUrl;
+
+        // Use the preselected URL if provided (from renderResultsGrid for dynamic covers)
+        if (preselectedCoverUrl) {
+            coverUrl = preselectedCoverUrl;
+        } else {
+            // Existing logic for fetching cover from RAWG API or cache (for featured games or no dynamic cover)
+            coverUrl = this.coverCache[game.title];
+            if (!coverUrl) {
+                coverUrl = await this.fetchGameCover(game.title);
+                this.coverCache[game.title] = coverUrl;
+            }
+        }
+
+        if (!coverUrl) {
+            coverUrl = 'https://placehold.co/400x225/18181b/fff?text=No+Art';
+        }
+        // Truncate title for display (before first bracket)
+        let shortTitle = game.title.split(/\(|\[|\{/)[0].trim();
+        if (!shortTitle) shortTitle = game.title;
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        card.innerHTML = `
+            <img class="game-card-art" data-src="${coverUrl}" alt="${this.escapeHtml(game.title)} cover art" loading="lazy" />
+            <div class="game-card-content">
+                <div class="game-card-title" title="${this.escapeHtml(game.title)}">${this.escapeHtml(shortTitle)}</div>
+                <div class="game-card-sub">
+                    <span>
+                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-file-icon lucide-file\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4\"/></svg>
+                        ${game.fileSize} • ${game.source}
+                    </span>
+                    <span>
+                        <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" class=\"lucide lucide-calendar-days-icon lucide-calendar-days\"><path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/><path d=\"M8 14h.01\"/><path d=\"M12 14h.01\"/><path d=\"M16 14h.01\"/><path d=\"M8 18h.01\"/><path d=\"M12 18h.01\"/><path d=\"M16 18h.01\"/></svg>
+                        ${new Date(game.uploadDate).toLocaleDateString('en-IN')}
+                    </span>
+                </div>
+                <div class="game-card-actions">
                     <a href="${game.uris[0]}" class="magnet-btn" title="Download Magnet">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15"/><path d="m5 8 4 4"/><path d="m12 15 4 4"/></svg>
                         <span>Download magnet</span>
@@ -245,13 +389,57 @@ class BettorApp {
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                     </button>
                 </div>
-            </td>
+            </div>
         `;
-
-        const copyBtn = tr.querySelector('.copy-btn');
+        // Copy button event
+        const copyBtn = card.querySelector('.copy-btn');
         copyBtn.addEventListener('click', () => this.copyToClipboard(game.uris[0], copyBtn));
+        return card;
+    }
 
-        return tr;
+    getCurrentRawgApiKey() {
+        if (this.rawgApiKeyUsage >= this.rawgApiKeyUsageLimit) {
+            this.rawgApiKeyIndex = (this.rawgApiKeyIndex + 1) % this.rawgApiKeys.length;
+            this.rawgApiKeyUsage = 0;
+        }
+        this.rawgApiKeyUsage++;
+        return this.rawgApiKeys[this.rawgApiKeyIndex];
+    }
+
+    async fetchGameCover(title) {
+        // RAWG API: https://api.rawg.io/api/games?search={title}&key={API_KEY}
+        const apiKey = this.getCurrentRawgApiKey();
+        // Strip everything after the first bracket for better matching
+        let shortTitle = title.split(/\(|\[|\{/)[0].trim();
+        if (!shortTitle) shortTitle = title;
+        // LocalStorage cache
+        const cacheKey = `bettorr_cover_${shortTitle}`;
+        const cacheTimeKey = `bettorr_cover_time_${shortTitle}`;
+        const cacheTTL = 24 * 60 * 60 * 1000; // 24 hours
+        try {
+            const cached = localStorage.getItem(cacheKey);
+            const cachedTime = localStorage.getItem(cacheTimeKey);
+            if (cached && cachedTime && (Date.now() - parseInt(cachedTime, 10) < cacheTTL)) {
+                return cached;
+            }
+        } catch (e) {}
+        try {
+            const url = `https://api.rawg.io/api/games?search=${encodeURIComponent(shortTitle)}&key=${apiKey}`;
+            const res = await fetch(url);
+            if (!res.ok) return null;
+            const data = await res.json();
+            if (data && data.results && data.results.length > 0) {
+                const img = data.results[0].background_image;
+                if (img) {
+                    try {
+                        localStorage.setItem(cacheKey, img);
+                        localStorage.setItem(cacheTimeKey, Date.now().toString());
+                    } catch (e) {}
+                    return img;
+                }
+            }
+        } catch (e) {}
+        return null;
     }
 
     // --- Event Handlers ---
@@ -527,9 +715,7 @@ class BettorApp {
             'Clair Obscur: Expedition 33',
             'Metaphor: ReFantazio',
             "Baldur's Gate 3",
-            'Hitman: World of Assassination',
             'The Witcher 3: Wild Hunt',
-            'Hades II ',
             'Balatro',
             'GTA V',
         ];
@@ -556,6 +742,59 @@ class BettorApp {
             titleEl.textContent = title;
             titleEl.style.display = title ? '' : 'none';
         }
+    }
+
+    toggleViewMode() {
+        const currentIndex = this.viewModes.indexOf(this.viewMode);
+        const nextIndex = (currentIndex + 1) % this.viewModes.length;
+        this.viewMode = this.viewModes[nextIndex];
+        localStorage.setItem(this.viewModeKey, this.viewMode);
+        this.updateViewToggleIcon();
+        // Re-render results
+        if (this.currentQuery) {
+            this.performSearch(this.currentQuery);
+        } else {
+            this.showFeaturedGames();
+        }
+    }
+
+    updateViewToggleIcon() {
+        const iconMap = {
+            'table': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-table-icon lucide-table"><path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/></svg>`,
+            'grid-2': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-grid-icon lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>`,
+            'grid-3': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid3x2-icon lucide-grid-3x2"><path d="M15 3v18"/><path d="M3 12h18"/><path d="M9 3v18"/><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`,
+            'grid-4': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-table-cells-merge-icon lucide-table-cells-merge"><path d="M12 21v-6"/><path d="M12 9V3"/><path d="M3 15h18"/><path d="M3 9h18"/><rect width="18" height="18" x="3" y="3" rx="2"/></svg>`
+        };
+        if (this.els.viewToggleIcon) {
+            const currentIndex = this.viewModes.indexOf(this.viewMode);
+            const nextIndex = (currentIndex + 1) % this.viewModes.length;
+            this.els.viewToggleIcon.innerHTML = iconMap[this.viewModes[nextIndex]] || '';
+        }
+    }
+
+    createResultRow(game) {
+        const tr = document.createElement('tr');
+        const uploadDate = new Date(game.uploadDate).toLocaleDateString('en-IN'); // DD-MM-YYYY format
+        tr.innerHTML = `
+            <td class="col-name"><div class="result-name">${this.escapeHtml(game.title)}</div></td>
+            <td class="col-date"><span class="result-date">${uploadDate}</span></td>
+            <td class="col-size"><span class="result-size">${game.fileSize}</span></td>
+            <td class="col-source"><span class="result-source">${game.source}</span></td>
+            <td class="col-actions">
+                <div class="result-actions">
+                    <a href="${game.uris[0]}" class="magnet-btn" title="Download Magnet">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15-4-4 6.75-6.77a7.79 7.79 0 0 1 11 11L13 22l-4-4 6.39-6.36a2.14 2.14 0 0 0-3-3L6 15"/><path d="m5 8 4 4"/><path d="m12 15 4 4"/></svg>
+                        <span>Download magnet</span>
+                    </a>
+                    <button class="copy-btn" title="Copy Magnet Link">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    </button>
+                </div>
+            </td>
+        `;
+        const copyBtn = tr.querySelector('.copy-btn');
+        copyBtn.addEventListener('click', () => this.copyToClipboard(game.uris[0], copyBtn));
+        return tr;
     }
 }
 

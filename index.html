@@ -113,11 +113,18 @@
                         </div>
                     </div>
                     
-                    <div class="view-toggle-wrapper">
-                        <button id="viewBtn" class="view-btn">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                            <span>View</span>
-                        </button>
+                    <div class="view-toggle-wrapper flex gap-2">
+                        <div class="view-btns">
+
+                            <button id="filterBtn" class="view-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                                <span>Filter</span>
+                            </button>
+                            <button id="viewToggleBtn" class="view-btn" aria-label="Toggle view mode">
+                                <svg id="viewToggleIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rows2-icon lucide-rows-2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 12h18"/></svg>
+                                <span>View</span>
+                            </button>
+                        </div>
                         <div id="sourceFilterDropdown" class="source-filter-dropdown hidden">
                             <div class="dropdown-header">Toggle Sources</div>
                             <label class="source-toggle">
